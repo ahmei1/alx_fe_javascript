@@ -14,7 +14,7 @@ const newQuoteCategory = document.getElementById("newQuoteCategory");
 const categorySelect = document.getElementById("categorySelect");
 
 // Function: Show Random Quote
-function showRandomQuote() {
+function displayRandomQuote() {
   let filteredQuotes = quotes;
 
   // Filter by selected category
@@ -61,8 +61,8 @@ function addQuote() {
 }
 
 // Event Listeners
-newQuoteBtn.addEventListener("click", showRandomQuote);
+newQuoteBtn.addEventListener("click", displayRandomQuote);
 addQuoteBtn.addEventListener("click", addQuote);
 
 // Initialize with one random quote on load
-document.addEventListener("DOMContentLoaded", showRandomQuote);
+document.addEventListener("DOMContentLoaded", displayRandomQuote);
