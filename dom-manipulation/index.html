@@ -8,29 +8,36 @@
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Category Filter (exact IDs & onchange signature) -->
-  <label for="categoryFilter">Filter by category:</label>
-  <select id="categoryFilter" onchange="filterQuote()">
-    <option value="all">All Categories</option>
-    <!-- options added dynamically -->
-  </select>
+  <!-- Display area -->
+  <div id="quoteDisplay">Loading...</div>
+  <button id="newQuote">Show New Quote</button>
 
-  <!-- Where filtered quotes will render -->
-  <div id="quoteDisplay"></div>
-
-  <!-- Simple add form to verify categories update live -->
-  <h3>Add a Quote</h3>
-  <input type="text" id="newQuote" placeholder="Enter quote" />
-  <input type="text" id="newCategory" placeholder="Enter category" />
-  <button onclick="addQuote()">Add Quote</button>
-
+  <!-- Add new quote -->
   <div>
-  <p id="quote-text">Loading...</p>
-  <input id="quote-input" placeholder="Enter a quote" />
-  <button id="add-quote">Add Quote</button>
-  <button id="sync-quotes">Sync Quotes</button>
-  <p id="notification"></p>
-</div>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button id="addQuote">Add Quote</button>
+  </div>
+
+  <!-- Category filter -->
+  <div>
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
+
+  <!-- Import/Export -->
+  <div>
+    <button id="exportJson">Export Quotes (JSON)</button>
+    <input type="file" id="importFile" accept=".json" />
+  </div>
+
+  <!-- Sync with server -->
+  <div>
+    <button id="syncBtn">Sync with Server</button>
+    <p id="notification"></p>
+  </div>
 
   <script src="script.js"></script>
 </body>
