@@ -24,15 +24,19 @@
                 <h3>Add New Quote</h3>
                 <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
                 <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-                <button onclick="addQuote()">Add Quote</button>
+                <button id="addQuoteBtn">Add Quote</button>
             </div>
             
             <div class="import-export">
                 <h3>Data Management</h3>
-                <button onclick="exportToJsonFile()">Export Quotes</button>
-                <input type="file" id="importFile" accept=".json" />
-                <button onclick="document.getElementById('importFile').click()">Import Quotes</button>
-                <button onclick="syncWithServer()">Sync with Server</button>
+                <button id="exportBtn">Export Quotes</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" />
+                <button id="importBtn">Import Quotes</button>
+                <button id="syncBtn">Sync with Server</button>
+                <div>
+                    <input type="checkbox" id="autoSync" checked>
+                    <label for="autoSync" id="autoSyncLabel">Auto-sync every 30 seconds</label>
+                </div>
             </div>
             
             <div id="syncStatus"></div>
