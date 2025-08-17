@@ -1,123 +1,96 @@
-/********************
- * Data & Storage
- ********************/
-let quotes = JSON.parse(localStorage.getItem("quotes")) || [
-  { text: "The best way to predict the future is to create it.", category: "Motivation" },
-  { text: "Life is what happens when you’re busy making other plans.", category: "Life" },
-  { text: "Code is like humor. When you have to explain it, it’s bad.", category: "Programming" }
-];
+// ===== Dynamic Quote Generator with Server Sync =====
 
-function saveQuotes() {
-  localStorage.setItem("quotes", JSON.stringify(quotes));
+// Elements
+const quoteText = document.getElementById("quote-text");
+const addBtn = document.getElementById("add-quote");
+const syncBtn = document.getElementById("sync-quotes");
+const inputField = document.getElementById("quote-input");
+const notification = document.getElementById("notification");
+
+// Local storage key
+const STORAGE_KEY = "quotes";
+
+// Get quotes from local storage
+function getLocalQuotes() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 }
 
-/********************
- * DOM Refs
- ********************/
-const categoryFilter = document.getElementById("categoryFilter");
-const quoteDisplay = document.getElementById("quoteDisplay");
-
-/************************************************
- * Step 2: populateCategories (required by task)
- ************************************************/
-function populateCategories() {
-  // Build a sorted unique list of categories
-  const categories = Array.from(new Set(quotes.map(q => q.category))).sort();
-
-  // Rebuild dropdown from scratch
-  categoryFilter.innerHTML = "";
-  const allOpt = document.createElement("option");
-  allOpt.value = "all";
-  allOpt.textContent = "All Categories";
-  categoryFilter.appendChild(allOpt);
-
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categoryFilter.appendChild(opt);
-  });
-
-  // Restore last selected category from localStorage (support both keys)
-  const saved =
-    localStorage.getItem("selectedCategory") ||
-    localStorage.getItem("categoryFilter");
-
-  if (saved && (saved === "all" || categories.includes(saved))) {
-    categoryFilter.value = saved;
-  } else {
-    categoryFilter.value = "all";
-  }
+// Save quotes to local storage
+function saveLocalQuotes(quotes) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
 }
 
-/********************************************************************
- * Step 2: filterQuote (exact name). Saves selection & updates DOM.
- ********************************************************************/
-function filterQuote() {
-  const selected = categoryFilter.value;
-
-  // Save the selected category (two keys to satisfy any checker)
-  localStorage.setItem("selectedCategory", selected);
-  localStorage.setItem("categoryFilter", selected);
-
-  // Filter quotes
-  const list =
-    selected === "all"
-      ? quotes
-      : quotes.filter(q => q.category === selected);
-
-  // Update the displayed quotes
-  quoteDisplay.innerHTML = "";
-  if (list.length === 0) {
-    quoteDisplay.textContent = "No quotes in this category yet.";
+// Show random quote
+function showRandomQuote() {
+  const quotes = getLocalQuotes();
+  if (quotes.length === 0) {
+    quoteText.textContent = "No quotes available.";
     return;
   }
-
-  const ul = document.createElement("ul");
-  list.forEach(q => {
-    const li = document.createElement("li");
-    li.textContent = `"${q.text}" — ${q.category}`;
-    ul.appendChild(li);
-  });
-  quoteDisplay.appendChild(ul);
+  const random = Math.floor(Math.random() * quotes.length);
+  quoteText.textContent = quotes[random];
 }
 
-/*********************************************************
- * Step 3: Update storage & categories when adding quotes
- *********************************************************/
-function addQuote() {
-  const textEl = document.getElementById("newQuote");
-  const catEl  = document.getElementById("newCategory");
-  const text = (textEl.value || "").trim();
-  const category = (catEl.value || "").trim();
+// Add new quote
+addBtn.addEventListener("click", () => {
+  const newQuote = inputField.value.trim();
+  if (newQuote === "") return;
 
-  if (!text || !category) {
-    alert("Please enter both a quote and a category.");
-    return;
-  }
+  const quotes = getLocalQuotes();
+  quotes.push(newQuote);
+  saveLocalQuotes(quotes);
 
-  quotes.push({ text, category });
-  saveQuotes();
-
-  // Preserve current selection, repopulate categories, re-apply filter
-  const current = categoryFilter.value;
-  populateCategories();
-  categoryFilter.value = (current === "all" || current === category) ? current : current;
-  filterQuote();
-
-  textEl.value = "";
-  catEl.value = "";
-}
-
-/********************
- * Init
- ********************/
-document.addEventListener("DOMContentLoaded", () => {
-  populateCategories(); // build dropdown
-  filterQuote();        // apply & save current filter (restores if saved)
+  inputField.value = "";
+  showRandomQuote();
 });
 
-// Expose for inline handlers / graders (optional but harmless)
-window.populateCategories = populateCategories;
-window.filterQuote = filterQuote;
-window.addQuote = addQuote;
+// ===== Simulated Server =====
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
+
+// Fetch quotes from "server"
+async function fetchServerQuotes() {
+  const response = await fetch(SERVER_URL);
+  const data = await response.json();
+  // Simulate server quotes using only titles
+  return data.slice(0, 5).map(item => item.title);
+}
+
+// Push quotes to "server" (simulation)
+async function pushQuotesToServer(quotes) {
+  await fetch(SERVER_URL, {
+    method: "POST",
+    body: JSON.stringify({ quotes }),
+    headers: { "Content-Type": "application/json" }
+  });
+}
+
+// ===== Sync Logic =====
+async function syncQuotes() {
+  const localQuotes = getLocalQuotes();
+  const serverQuotes = await fetchServerQuotes();
+
+  // Conflict resolution: server wins
+  const mergedQuotes = [...new Set([...serverQuotes, ...localQuotes])];
+  saveLocalQuotes(mergedQuotes);
+
+  // Notify user
+  notification.textContent = "✅ Synced with server (server data prioritized)";
+  setTimeout(() => (notification.textContent = ""), 3000);
+
+  // Optionally push local updates
+  await pushQuotesToServer(localQuotes);
+
+  showRandomQuote();
+}
+
+// Manual sync button
+syncBtn.addEventListener("click", syncQuotes);
+
+// Auto sync every 30s
+setInterval(syncQuotes, 30000);
+
+// Init
+document.addEventListener("DOMContentLoaded", () => {
+  showRandomQuote();
+  syncQuotes();
+});
