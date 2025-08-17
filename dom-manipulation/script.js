@@ -33,7 +33,7 @@ function populateCategories() {
 }
 
 // Show quotes based on filter
-function filterQuotes() {
+function filterQuote() {
   const selectedCategory = categoryFilter.value;
   localStorage.setItem("selectedCategory", selectedCategory);
 
@@ -58,7 +58,7 @@ function addQuote() {
     document.getElementById("newQuote").value = "";
     document.getElementById("newCategory").value = "";
     populateCategories(); // update dropdown
-    filterQuotes(); // refresh displayed quotes
+    filterQuote(); // refresh displayed quotes
   } else {
     alert("Please enter both a quote and a category.");
   }
@@ -66,4 +66,4 @@ function addQuote() {
 
 // Initial load
 populateCategories();
-filterQuotes();
+filterQuote();
