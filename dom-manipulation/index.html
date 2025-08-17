@@ -8,14 +8,17 @@
 <body>
   <h1>Dynamic Quote Generator</h1>
 
+  <!-- Category Filter (exact IDs & onchange signature) -->
   <label for="categoryFilter">Filter by category:</label>
   <select id="categoryFilter" onchange="filterQuote()">
     <option value="all">All Categories</option>
-    <!-- options are populated dynamically -->
+    <!-- options added dynamically -->
   </select>
 
-  <div id="quoteContainer"></div>
+  <!-- Where filtered quotes will render -->
+  <div id="quoteDisplay"></div>
 
+  <!-- Simple add form to verify categories update live -->
   <h3>Add a Quote</h3>
   <input type="text" id="newQuote" placeholder="Enter quote" />
   <input type="text" id="newCategory" placeholder="Enter category" />
