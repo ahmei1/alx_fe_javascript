@@ -24,6 +24,7 @@ let quotes = [
 // Get DOM elements
 const quoteDisplay = document.getElementById('quoteDisplay');
 const newQuoteBtn = document.getElementById('newQuote');
+const addQuoteBtn = document.getElementById('addQuoteBtn');
 const newQuoteText = document.getElementById('newQuoteText');
 const newQuoteCategory = document.getElementById('newQuoteCategory');
 const categoryFilter = document.getElementById('categoryFilter');
@@ -265,10 +266,21 @@ document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
 
     // Attach event listeners to buttons and filter
-    newQuoteBtn.addEventListener('click', showRandomQuote);
-    categoryFilter.addEventListener('change', filterQuotes);
-    exportBtn.addEventListener('click', exportJson);
-    syncBtn.addEventListener('click', syncQuotes);
+    if (newQuoteBtn) {
+        newQuoteBtn.addEventListener('click', showRandomQuote);
+    }
+    if (addQuoteBtn) {
+        addQuoteBtn.addEventListener('click', addQuote);
+    }
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterQuotes);
+    }
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportJson);
+    }
+    if (syncBtn) {
+        syncBtn.addEventListener('click', syncQuotes);
+    }
 
     // Set up periodic syncing every 60 seconds (60000 milliseconds)
     setInterval(syncQuotes, 60000);
