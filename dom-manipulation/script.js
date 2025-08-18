@@ -137,3 +137,60 @@ if (sessionStorage.getItem("lastQuote")) {
 
 // Simulate periodic server sync
 setInterval(syncWithServer, 15000); // every 15 sec
+
+// ================== Server Sync (Task 3) ===================
+
+// Example mock server endpoint (JSONPlaceholder only supports GET/POST)
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
+
+// Fetch data from server and merge with local quotes
+async function syncWithServer() {
+  try {
+    const response = await fetch(SERVER_URL);
+    const serverData = await response.json();
+
+    // simulate server quotes from the mock data (title used as quote)
+    const serverQuotes = serverData.slice(0, 5).map(item => ({
+      text: item.title,
+      category: "Server"
+    }));
+
+    let conflicts = 0;
+    serverQuotes.forEach(sq => {
+      if (!quotes.some(lq => lq.text === sq.text)) {
+        quotes.push(sq);
+      } else {
+        conflicts++;
+      }
+    });
+
+    if (conflicts > 0) {
+      notification.textContent = `Conflicts resolved: ${conflicts} duplicates ignored.`;
+    } else {
+      notification.textContent = "Synced with server successfully!";
+    }
+
+    saveQuotes();
+    populateCategories();
+  } catch (error) {
+    notification.textContent = "Error syncing with server.";
+    console.error(error);
+  }
+}
+
+// Push a new local quote to the server
+async function pushQuoteToServer(quote) {
+  try {
+    await fetch(SERVER_URL, {
+      method: "POST",
+      body: JSON.stringify(quote),
+      headers: { "Content-type": "application/json; charset=UTF-8" }
+    });
+    notification.textContent = "Quote pushed to server!";
+  } catch (error) {
+    notification.textContent = "Error pushing quote to server.";
+    console.error(error);
+  }
+}
+pushQuoteToServer({ text, category });
+
