@@ -249,7 +249,7 @@ async function syncQuotes() {
             populateCategories();
             showMessage(`Sync successful! Added ${newQuotesFromServer.length} new quotes.`, 'success');
         } else {
-            showMessage("Data is already up to date.", 'info');
+            showMessage("Data is synced. No new quotes from server.", 'info');
         }
     } catch (error) {
         showMessage("Failed to sync with server.", 'error');
