@@ -43,7 +43,11 @@ function addQuote() {
   alert("Quote added successfully!");
   document.getElementById("newQuoteText").value = "";
   document.getElementById("newQuoteCategory").value = "";
+
+  // push new quote to server
+  postQuoteToServer({ text, category });
 }
+
 
 // ================== Filtering ===================
 function populateCategories() {
@@ -98,88 +102,29 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// ================== Server Sync Simulation ===================
-function syncWithServer() {
-  const serverQuotes = [
-    { text: "Simulated server quote #1", category: "Server" },
-    { text: "Simulated server quote #2", category: "Server" }
-  ];
-
-  let conflicts = 0;
-  serverQuotes.forEach(sq => {
-    if (!quotes.some(lq => lq.text === sq.text)) {
-      quotes.push(sq);
-    } else {
-      conflicts++;
-    }
-  });
-
-  if (conflicts > 0) {
-    notification.textContent = `Conflicts resolved: ${conflicts} duplicates ignored.`;
-  } else {
-    notification.textContent = "Synced with server successfully!";
-  }
-  saveQuotes();
-  populateCategories();
-}
-
-// ================== Event Listeners ===================
-newQuoteBtn.addEventListener("click", showRandomQuote);
-
-// ================== Init ===================
-populateCategories();
-if (sessionStorage.getItem("lastQuote")) {
-  const last = JSON.parse(sessionStorage.getItem("lastQuote"));
-  quoteDisplay.innerHTML = `"${last.text}" <div class="category">(${last.category})</div>`;
-} else {
-  showRandomQuote();
-}
-
-// Simulate periodic server sync
-setInterval(syncWithServer, 15000); // every 15 sec
-
 // ================== Server Sync (Task 3) ===================
 
-// Example mock server endpoint (JSONPlaceholder only supports GET/POST)
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
-// Fetch data from server and merge with local quotes
-async function syncWithServer() {
+// Fetch quotes from server (mock API)
+async function fetchQuotesFromServer() {
   try {
     const response = await fetch(SERVER_URL);
     const serverData = await response.json();
 
-    // simulate server quotes from the mock data (title used as quote)
-    const serverQuotes = serverData.slice(0, 5).map(item => ({
+    // simulate quotes from server (take first 5 posts)
+    return serverData.slice(0, 5).map(item => ({
       text: item.title,
       category: "Server"
     }));
-
-    let conflicts = 0;
-    serverQuotes.forEach(sq => {
-      if (!quotes.some(lq => lq.text === sq.text)) {
-        quotes.push(sq);
-      } else {
-        conflicts++;
-      }
-    });
-
-    if (conflicts > 0) {
-      notification.textContent = `Conflicts resolved: ${conflicts} duplicates ignored.`;
-    } else {
-      notification.textContent = "Synced with server successfully!";
-    }
-
-    saveQuotes();
-    populateCategories();
   } catch (error) {
-    notification.textContent = "Error syncing with server.";
-    console.error(error);
+    console.error("Error fetching server quotes:", error);
+    return [];
   }
 }
 
-// Push a new local quote to the server
-async function pushQuoteToServer(quote) {
+// Post a new quote to the server
+async function postQuoteToServer(quote) {
   try {
     await fetch(SERVER_URL, {
       method: "POST",
@@ -188,9 +133,35 @@ async function pushQuoteToServer(quote) {
     });
     notification.textContent = "Quote pushed to server!";
   } catch (error) {
+    console.error("Error posting quote:", error);
     notification.textContent = "Error pushing quote to server.";
-    console.error(error);
   }
 }
-pushQuoteToServer({ text, category });
 
+// Sync local quotes with server quotes
+async function syncQuotes() {
+  const serverQuotes = await fetchQuotesFromServer();
+  let conflicts = 0;
+
+  serverQuotes.forEach(sq => {
+    if (!quotes.some(lq => lq.text === sq.text)) {
+      quotes.push(sq);
+    } else {
+      conflicts++;
+    }
+  });
+
+  saveQuotes();
+  populateCategories();
+
+  if (conflicts > 0) {
+    notification.textContent = `Conflicts resolved: ${conflicts} duplicates ignored.`;
+  } else {
+    notification.textContent = "Synced with server successfully!";
+  }
+}
+
+// Periodically sync every 30 seconds
+setInterval(syncQuotes, 30000);
+
+// Call postQuoteToServer inside addQuote() instead of here
