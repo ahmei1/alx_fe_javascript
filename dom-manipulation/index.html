@@ -1,48 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quote Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #quoteDisplay { margin: 20px 0; font-size: 1.3em; font-style: italic; }
+    input, select, button { margin: 5px; padding: 5px; }
+    .category { font-size: 0.9em; color: gray; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Dynamic Quote Generator</h1>
-        
-        <div class="controls">
-            <div class="filter-section">
-                <select id="categoryFilter">
-                    <option value="all">All Categories</option>
-                </select>
-                <button id="newQuote">Show Random Quote</button>
-            </div>
-            
-            <div class="quote-display" id="quoteDisplay"></div>
-            
-            <div class="add-quote-section">
-                <h3>Add New Quote</h3>
-                <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-                <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-                <button id="addQuoteBtn">Add Quote</button>
-            </div>
-            
-            <div class="import-export">
-                <h3>Data Management</h3>
-                <button id="exportBtn">Export Quotes</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" />
-                <button id="importBtn">Import Quotes</button>
-                <button id="syncBtn">Sync with Server</button>
-                <div>
-                    <input type="checkbox" id="autoSync" checked>
-                    <label for="autoSync" id="autoSyncLabel">Auto-sync every 30 seconds</label>
-                </div>
-            </div>
-            
-            <div id="syncStatus"></div>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+  <h1>Dynamic Quote Generator</h1>
+
+  <!-- Quote Display -->
+  <div id="quoteDisplay"></div>
+  <button id="newQuote">Show New Quote</button>
+
+  <!-- Add New Quote -->
+  <h3>Add a New Quote</h3>
+  <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+  <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+  <button onclick="addQuote()">Add Quote</button>
+
+  <!-- Filter -->
+  <h3>Filter by Category</h3>
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <option value="all">All Categories</option>
+  </select>
+
+  <!-- Import/Export -->
+  <h3>Import / Export Quotes</h3>
+  <button onclick="exportToJsonFile()">Export Quotes (JSON)</button>
+  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
+  <!-- Notifications -->
+  <div id="notification" style="margin-top:20px; color:red;"></div>
+
+  <!-- Link JS -->
+  <script src="script.js"></script>
 </body>
 </html>
