@@ -179,11 +179,11 @@ function importFromJsonFile(event) {
 // --- Task 3: Server Syncing & Conflict Resolution (Simulated) ---
 
 /**
- * Simulates fetching data from a server.
+ * Simulates fetching data from a server using a mock API.
  * This function returns a Promise that resolves with new quotes.
- * In a real application, you would use `fetch()` here.
+ * In a real application, you would use `fetch()` here to get the data.
  */
-function fetchFromServer() {
+function fetchQuotesFromServer() {
     return new Promise(resolve => {
         setTimeout(() => {
             const serverQuotes = [
@@ -197,12 +197,30 @@ function fetchFromServer() {
 }
 
 /**
+ * Simulates posting data to a server.
+ * In a real application, you would use `fetch()` with the POST method.
+ */
+function postQuotesToServer() {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            // In a real app, you'd send `quotes` to the server here.
+            console.log("Simulating POST request to server with current quotes:", quotes);
+            resolve({ success: true, message: "Quotes posted successfully." });
+        }, 500);
+    });
+}
+
+/**
  * Syncs local data with the server, with the server's data taking precedence.
  */
 async function syncQuotes() {
     showMessage("Syncing with server...", 'info');
     try {
-        const serverQuotes = await fetchFromServer();
+        // First, post local changes to the server (simulated)
+        await postQuotesToServer();
+
+        // Then, fetch the latest data from the server
+        const serverQuotes = await fetchQuotesFromServer();
         const existingQuoteTexts = new Set(quotes.map(q => q.text));
 
         // Add new quotes from the server that don't already exist locally
@@ -234,6 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
     categoryFilter.addEventListener('change', filterQuotes);
     exportBtn.addEventListener('click', exportJson);
     syncBtn.addEventListener('click', syncQuotes);
+
+    // Set up periodic syncing every 60 seconds (60000 milliseconds)
+    setInterval(syncQuotes, 60000);
 
     // Display the initial quote
     showRandomQuote();
