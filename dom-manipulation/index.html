@@ -1,44 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Quote Generator</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #quoteDisplay { margin: 20px 0; font-size: 1.3em; font-style: italic; }
-    input, select, button { margin: 5px; padding: 5px; }
-    .category { font-size: 0.9em; color: gray; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quote Generator</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: fadeInOut 4s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
 </head>
-<body>
-  <h1>Dynamic Quote Generator</h1>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- Quote Display -->
-  <div id="quoteDisplay"></div>
-  <button id="newQuote">Show New Quote</button>
+    <!-- Main Container -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full text-center">
+        <h1 class="text-4xl font-bold mb-6 text-gray-800">Dynamic Quote Generator</h1>
 
-  <!-- Add New Quote -->
-  <h3>Add a New Quote</h3>
-  <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-  <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-  <button onclick="addQuote()">Add Quote</button>
+        <!-- Quote Display Section -->
+        <div id="quoteDisplay" class="mb-8 p-6 bg-gray-50 rounded-lg border-l-4 border-purple-500 shadow-inner">
+            <p class="text-xl italic text-gray-700">"The only way to do great work is to love what you do."</p>
+            <p class="text-md mt-4 text-gray-500">- Steve Jobs</p>
+        </div>
 
-  <!-- Filter -->
-  <h3>Filter by Category</h3>
-  <select id="categoryFilter" onchange="filterQuotes()">
-    <option value="all">All Categories</option>
-  </select>
+        <!-- Quote Controls Section -->
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
+            <button id="newQuote" class="bg-purple-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
+                <i class="fa-solid fa-sync-alt mr-2"></i> Show New Quote
+            </button>
+            <div class="relative w-full sm:w-auto">
+                <select id="categoryFilter" class="w-full sm:w-48 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 shadow-sm">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+        </div>
 
-  <!-- Import/Export -->
-  <h3>Import / Export Quotes</h3>
-  <button onclick="exportToJsonFile()">Export Quotes (JSON)</button>
-  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+        <!-- Add New Quote Section -->
+        <div id="addQuoteForm" class="bg-gray-100 p-6 rounded-2xl shadow-inner mt-8 text-left">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Add a New Quote</h2>
+            <input id="newQuoteText" type="text" placeholder="Enter a new quote" class="w-full p-3 mb-4 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 shadow-sm" />
+            <input id="newQuoteCategory" type="text" placeholder="Enter quote category" class="w-full p-3 mb-4 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 shadow-sm" />
+            <button onclick="addQuote()" class="w-full bg-emerald-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-emerald-600 transition-colors duration-300">
+                <i class="fa-solid fa-plus mr-2"></i> Add Quote
+            </button>
+        </div>
 
-  <!-- Notifications -->
-  <div id="notification" style="margin-top:20px; color:red;"></div>
+        <!-- Import/Export & Sync Section -->
+        <div class="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <button id="exportQuotes" class="w-full sm:w-auto bg-sky-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-sky-600 transition-colors duration-300">
+                <i class="fa-solid fa-download mr-2"></i> Export Quotes
+            </button>
+            <label for="importFile" class="w-full sm:w-auto cursor-pointer bg-amber-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-amber-600 transition-colors duration-300">
+                <i class="fa-solid fa-upload mr-2"></i> Import Quotes
+            </label>
+            <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" class="hidden" />
+            <button id="syncData" class="w-full sm:w-auto bg-rose-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-rose-600 transition-colors duration-300">
+                <i class="fa-solid fa-server mr-2"></i> Sync Data
+            </button>
+        </div>
+    </div>
 
-  <!-- Link JS -->
-  <script src="script.js"></script>
+    <!-- Message Box for Notifications -->
+    <div id="messageBox" class="message-box hidden"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
